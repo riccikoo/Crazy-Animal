@@ -1,40 +1,51 @@
 using UnityEngine;
 
-public class PlayerController: MonoBehaviour
+public class PlayerController : MonoBehaviour
 {
-    public float moveSpeed = 5f;      // Kecepatan jalan
-    public float rotationSpeed = 100f; // Kecepatan putar badan
+    public float walkSpeed = 5f;
+    public float sprintSpeed = 10f;
+    public float rotationSpeed = 100f;
+    public float consumptionRate = 20f; // Berapa energi yang habis per detik saat lari
+
+    private float currentSpeed;
     private Animator anim;
+    private PlayerStats stats; // Referensi ke script stats
 
     void Start()
     {
         anim = GetComponent<Animator>();
+        stats = GetComponent<PlayerStats>();
     }
 
     void Update()
     {
-        // 1. Ambil Input Keyboard
-        // Vertical: W/S atau Arrow Up/Down
-        // Horizontal: A/D atau Arrow Left/Right
         float moveInput = Input.GetAxis("Vertical");
         float turnInput = Input.GetAxis("Horizontal");
 
-        // 2. Logika Berpindah (Transform)
-        // Gerak maju/mundur
-        transform.Translate(Vector3.forward * moveInput * moveSpeed * Time.deltaTime);
+        bool isSprinting = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) 
+                            && moveInput > 0.1f 
+                            && stats.energy > 0;
 
-        // Rotasi (putar kiri/kanan)
+        if (isSprinting)
+        {
+            currentSpeed = sprintSpeed;
+            stats.UseEnergy(consumptionRate); 
+        }
+        else
+        {
+            currentSpeed = walkSpeed;
+        }
+
+        transform.Translate(Vector3.forward * moveInput * currentSpeed * Time.deltaTime);
         transform.Rotate(Vector3.up * turnInput * rotationSpeed * Time.deltaTime);
 
-        // 3. Update Animasi
-        // Jika moveInput tidak nol, berarti lagi jalan
-        float speedVisual = Mathf.Abs(moveInput) + Mathf.Abs(turnInput);
-        anim.SetFloat("Speed", speedVisual);
-
-        // 4. Coba Animasi Lain (Contoh: Tekan E untuk Makan)
-        if (Input.GetKeyDown(KeyCode.E))
+        float speedVisual = Mathf.Abs(moveInput);
+        
+        if (isSprinting)
         {
-            anim.Play("eat");
+            speedVisual *= 2.0f; 
         }
+
+        anim.SetFloat("Speed", speedVisual);
     }
 }
