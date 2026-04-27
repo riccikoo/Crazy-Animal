@@ -1258,9 +1258,21 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 4529824397961326865, guid: e801ac71b5f9b8442ad1d65219b60997, type: 3}
+      propertyPath: m_Speed
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4529824397961326865, guid: e801ac71b5f9b8442ad1d65219b60997, type: 3}
+      propertyPath: m_Acceleration
+      value: 4
+      objectReference: {fileID: 0}
     - target: {fileID: 4799361544899029875, guid: e801ac71b5f9b8442ad1d65219b60997, type: 3}
       propertyPath: m_Name
       value: animal-hog
+      objectReference: {fileID: 0}
+    - target: {fileID: 4872594716995500152, guid: e801ac71b5f9b8442ad1d65219b60997, type: 3}
+      propertyPath: m_IsKinematic
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5319051641118273993, guid: e801ac71b5f9b8442ad1d65219b60997, type: 3}
       propertyPath: m_LocalPosition.x
@@ -1746,7 +1758,7 @@ MonoBehaviour:
   walkSpeed: 5
   sprintSpeed: 10
   rotationSpeed: 100
-  consumptionRate: 20
+  sprintEnergyCost: 20
 --- !u!95 &1901275881
 Animator:
   serializedVersion: 7
@@ -1788,13 +1800,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PlayerStats
   health: 100
   gold: 0
+  damage: 15
   energy: 100
   maxEnergy: 100
-  damage: 15
   regenRate: 10.12
   regenDelay: 5
-  regenTimer: 0
   isExhausted: 0
+  attackRange: 2
+  attackEnergyCost: 10
   healthUI: {fileID: 577148011}
   goldUI: {fileID: 860191848}
   energyUI: {fileID: 2087082335}

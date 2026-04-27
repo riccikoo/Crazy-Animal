@@ -1,21 +1,26 @@
 using UnityEngine;
 using TMPro;
-using System.Collections; // Wajib untuk Coroutine
+using System.Collections;
 
 public class PlayerStats : MonoBehaviour
 {
-    [Header("Stats")]
+    [Header("Basic Stats")]
     public int health = 100;
     public int gold = 0;
-    public float energy = 100f;
-    public float maxEnergy = 100f;
     public int damage = 50;
 
-    [Header("Energy Settings")]
+    [Header("Energy System")]
+    public float energy = 100f;
+    public float maxEnergy = 100f;
     public float regenRate = 5f;
     public float regenDelay = 5f;
-    public float regenTimer = 0f;
     public bool isExhausted = false;
+    private float regenTimer = 0f;
+
+    [Header("Attack Settings")]
+    public float attackRange = 2f;      // Jarak serangan
+    public float attackEnergyCost = 10f; // Biaya energi sekali pukul
+    private bool isAttacking = false;
 
     [Header("UI Reference")]
     public TextMeshProUGUI healthUI;
@@ -23,7 +28,6 @@ public class PlayerStats : MonoBehaviour
     public TextMeshProUGUI energyUI;
 
     private Animator anim;
-    private bool isAttacking = false; // Biar gak spam damage pas tabrakan
 
     void Start()
     {
@@ -33,6 +37,11 @@ public class PlayerStats : MonoBehaviour
     }
 
     void Update()
+    {
+        HandleEnergyRegen();
+    }
+
+    private void HandleEnergyRegen()
     {
         if (isExhausted)
         {
@@ -47,52 +56,68 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    private void OnCollisionEnter(Collision collision)
+    // --- LOGIKA ATTACK MANUAL ---
+    public void ManualAttack()
     {
-        // Jika nabrak musuh dan kita lagi gak dalam proses nyerang
-        if (collision.gameObject.CompareTag("Enemy") && !isAttacking)
+        // Hanya bisa nyerang jika tidak sedang animasi attack & tidak capek
+        if (!isAttacking && !isExhausted && energy >= attackEnergyCost)
         {
-            StartCoroutine(PlayerAttackRoutine(collision.gameObject));
+            StartCoroutine(PlayerAttackRoutine());
         }
     }
 
-    IEnumerator PlayerAttackRoutine(GameObject enemy)
+    IEnumerator PlayerAttackRoutine()
     {
-        isAttacking = true; 
-        if (anim != null) anim.Play("eat");
-
-        // Tunggu 0.8 detik sampai gerakan animasi "pas" buat ngasih damage
-        yield return new WaitForSeconds(0.8f);
-
-        if (enemy != null)
+        // 1. Izinkan animasi dimainkan ulang dari awal meskipun animasi sebelumnya belum beres
+        if (anim != null) 
         {
-            EnemyAI enemyScript = enemy.GetComponent<EnemyAI>();
-            if (enemyScript != null)
+            // Parameter: "NamaState", Layer (-1 = default), StartTime (0f = mulai dari awal)
+            anim.Play("eat", -1, 0f); 
+        }
+
+        isAttacking = true;
+        energy -= attackEnergyCost;
+        UpdateUI();
+
+        // 2. Momen serangan (Disesuaikan agar terasa cepat, misal 0.3 detik)
+        yield return new WaitForSeconds(0.3f);
+
+        Collider[] hitEnemies = Physics.OverlapSphere(transform.position, attackRange);
+        foreach (Collider enemy in hitEnemies)
+        {
+            if (enemy.CompareTag("Enemy"))
             {
-                enemyScript.TakeDamage(damage);
+                EnemyAI enemyScript = enemy.GetComponent<EnemyAI>();
+                if (enemyScript != null) enemyScript.TakeDamage(damage);
             }
         }
 
-        // Tunggu sisa animasi beres baru bisa nyerang lagi
-        yield return new WaitForSeconds(1.2f);
+        // 3. KUNCI UTAMA SPAM: 
+        // Jangan tunggu sampai 1.2 detik. Begitu damage keluar, langsung izinkan attack lagi.
+        yield return new WaitForSeconds(0.1f); 
         isAttacking = false;
     }
 
-    // Fungsi UI dan Trigger tetap sama
-    public void UpdateUI()
+    // --- UTILITY & UI ---
+    public void UseEnergy(float amountPerSecond)
     {
-        if(healthUI) healthUI.text = "HP: " + health;
-        if(goldUI) goldUI.text = "Gold: " + gold;
-        if(energyUI) energyUI.text = "Energy: " + Mathf.RoundToInt(energy);
-        if (health <= 0) Debug.Log("Game Over!");
+        energy -= amountPerSecond * Time.deltaTime;
+        if (energy <= 0)
+        {
+            energy = 0;
+            isExhausted = true;
+            regenTimer = regenDelay;
+        }
+        UpdateUI();
     }
 
-    public void UseEnergy(float amount)
+    public void UpdateUI()
     {
-        energy -= amount * Time.deltaTime;
-        energy = Mathf.Clamp(energy, 0, maxEnergy);
-        if (energy <= 0) { isExhausted = true; regenTimer = regenDelay; }
-        UpdateUI();
+        if (healthUI) healthUI.text = "HP: " + health;
+        if (goldUI) goldUI.text = "Gold: " + gold;
+        if (energyUI) energyUI.text = "Energy: " + Mathf.RoundToInt(energy);
+
+        if (health <= 0) Debug.Log("Player Mati / Game Over!");
     }
 
     private void OnTriggerEnter(Collider other)
@@ -101,5 +126,12 @@ public class PlayerStats : MonoBehaviour
         else if (other.CompareTag("Gold")) { gold += 5; Destroy(other.gameObject); }
         else if (other.CompareTag("Damage")) { health -= 10; Destroy(other.gameObject); }
         UpdateUI();
+    }
+
+    // Menampilkan radius serangan di Editor (Garis merah)
+    private void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawWireSphere(transform.position, attackRange);
     }
 }
