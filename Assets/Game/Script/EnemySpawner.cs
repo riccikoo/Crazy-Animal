@@ -1,23 +1,54 @@
 using UnityEngine;
+using UnityEngine.AI;
 using System.Collections;
 
 public class EnemySpawner : MonoBehaviour
 {
-    public static EnemySpawner instance;
+    [Header("Spawn Settings")]
     public GameObject enemyPrefab;
-    public float respawnTime = 20f;
+    public int maxEnemies = 3;        // Jumlah babi yang ingin di-spawn
+    public float spawnRadius = 5f;    // Agar babi tidak numpuk di satu titik saat lahir
+    public float respawnTime = 5f;
 
-    void Awake() { instance = this; }
-
-    public void RespawnEnemy(Vector3 position)
+    void Start()
     {
-        StartCoroutine(SpawnRoutine(position));
+        // Panggil fungsi untuk spawn awal sebanyak maxEnemies
+        for (int i = 0; i < maxEnemies; i++)
+        {
+            SpawnNewEnemy(transform.position);
+        }
     }
 
-    IEnumerator SpawnRoutine(Vector3 position)
+    // Fungsi internal untuk membuat babi baru
+    void SpawnNewEnemy(Vector3 centerPosition)
     {
-        Debug.Log("Enemy habis, nunggu 20 detik...");
+        // Cari posisi acak biar gak tumpang tindih
+        Vector3 randomPos = centerPosition + (Random.insideUnitSphere * spawnRadius);
+        NavMeshHit hit;
+        
+        if (NavMesh.SamplePosition(randomPos, out hit, spawnRadius, NavMesh.AllAreas))
+        {
+            GameObject newEnemy = Instantiate(enemyPrefab, hit.position, Quaternion.identity);
+            
+            // Link musuh ke spawner ini
+            EnemyAI ai = newEnemy.GetComponent<EnemyAI>();
+            if (ai != null) ai.mySpawner = this;
+
+            // Tempelkan ke NavMesh
+            NavMeshAgent agent = newEnemy.GetComponent<NavMeshAgent>();
+            if (agent != null) agent.Warp(hit.position);
+        }
+    }
+
+    // Fungsi yang dipanggil oleh EnemyAI saat mati
+    public void RespawnEnemy(Vector3 lastPosition)
+    {
+        StartCoroutine(RespawnRoutine(lastPosition));
+    }
+
+    IEnumerator RespawnRoutine(Vector3 lastPosition)
+    {
         yield return new WaitForSeconds(respawnTime);
-        Instantiate(enemyPrefab, position, Quaternion.identity);
+        SpawnNewEnemy(transform.position); // Spawn babi baru di area spawner
     }
 }

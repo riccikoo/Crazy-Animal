@@ -1,58 +1,99 @@
 using UnityEngine;
+using System.Collections;
+using System.Collections.Generic;
 
+[RequireComponent(typeof(CharacterController))] // Otomatis nambahin komponen ini kalau belum ada
 public class PlayerController : MonoBehaviour
 {
     [Header("Movement Settings")]
     public float walkSpeed = 5f;
     public float sprintSpeed = 10f;
     public float rotationSpeed = 100f;
-    public float sprintEnergyCost = 20f; // Energi habis per detik saat lari
+    public float sprintEnergyCost = 20f;
 
-    private float currentSpeed;
+    [Header("Jump Settings")]
+    public float jumpHeight = 2f;
+    public float gravity = -20f; // Saya buat lebih berat agar tidak melayang (floaty)
+
+    private CharacterController controller;
     private Animator anim;
     private PlayerStats stats;
+    
+    private Vector3 playerVelocity;
+    private bool isGrounded;
 
     void Start()
     {
+        controller = GetComponent<CharacterController>();
         anim = GetComponent<Animator>();
         stats = GetComponent<PlayerStats>();
     }
 
     void Update()
     {
-        // 1. Input Gerakan
-        float moveInput = Input.GetAxis("Vertical"); // W/S atau Arrow Up/Down
-        float turnInput = Input.GetAxis("Horizontal"); // A/D atau Arrow Left/Right
+        // 1. Cek Grounded (Menggunakan fitur bawaan CharacterController)
+        isGrounded = controller.isGrounded;
+        if (isGrounded && playerVelocity.y < 0)
+        {
+            playerVelocity.y = -2f; // Pastikan tetap menempel tanah
+        }
 
-        // 2. Logika Sprint (Hanya lari jika maju dan ada energi)
-        bool isSprinting = (Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)) 
+        // 2. Input Gerakan
+        float moveInput = Input.GetAxis("Vertical"); 
+        float turnInput = Input.GetAxis("Horizontal");
+
+        // 3. Logika Sprint
+        bool isSprinting = (Input.GetKey(KeyCode.LeftShift)) 
                             && moveInput > 0.1f 
                             && stats.energy > 0 
                             && !stats.isExhausted;
 
-        if (isSprinting)
-        {
-            currentSpeed = sprintSpeed;
-            stats.UseEnergy(sprintEnergyCost); 
-        }
-        else
-        {
-            currentSpeed = walkSpeed;
-        }
+        float currentSpeed = isSprinting ? sprintSpeed : walkSpeed;
+        if (isSprinting) stats.UseEnergy(sprintEnergyCost);
 
-        // 3. Eksekusi Gerakan & Rotasi
-        transform.Translate(Vector3.forward * moveInput * currentSpeed * Time.deltaTime);
+        // 4. Proses Rotasi (Kanan-Kiri)
         transform.Rotate(Vector3.up * turnInput * rotationSpeed * Time.deltaTime);
 
-        // 4. Animasi Movement
+        // 5. Proses Jalan (Maju-Mundur)
+        Vector3 move = transform.forward * moveInput;
+        controller.Move(move * Time.deltaTime * currentSpeed);
+
+        // 6. Logika Animasi
         float speedVisual = Mathf.Abs(moveInput);
         if (isSprinting) speedVisual *= 2.0f; 
         anim.SetFloat("Speed", speedVisual);
 
-        // 5. Input Attack Manual (Tombol J)
+        // 7. Logika Jump (Hanya jika di tanah)
+        if (Input.GetKeyDown(KeyCode.Space) && isGrounded)
+        {
+            // Formula: v = sqrt(h * -2 * g)
+            playerVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
+            StartCoroutine(JumpJuice(0.8f, 1.2f, 0.1f));
+        }
+
+        // 8. Terapkan Gravitasi (Selalu jalan setiap frame)
+        playerVelocity.y += gravity * Time.deltaTime;
+        controller.Move(playerVelocity * Time.deltaTime);
+
+        // 9. Input Attack
         if (Input.GetKeyDown(KeyCode.J))
         {
             stats.ManualAttack();
         }
+    }
+
+    IEnumerator JumpJuice(float stretchX, float stretchY, float duration)
+    {
+        Vector3 originalScale = Vector3.one;
+        Vector3 targetScale = new Vector3(stretchX, stretchY, stretchX);
+        
+        float elapsed = 0;
+        while (elapsed < duration)
+        {
+            transform.localScale = Vector3.Lerp(originalScale, targetScale, elapsed / duration);
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+        transform.localScale = originalScale;
     }
 }

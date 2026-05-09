@@ -6,7 +6,10 @@ public class PlayerStats : MonoBehaviour
 {
     [Header("Basic Stats")]
     public int health = 100;
-    public int gold = 0;
+    public int maxHealth = 100;
+    public int level = 1;
+    public int currentExp = 0;
+    public int expToNextLevel = 60;
     public int damage = 50;
 
     [Header("Energy System")]
@@ -19,13 +22,14 @@ public class PlayerStats : MonoBehaviour
 
     [Header("Attack Settings")]
     public float attackRange = 2f;      // Jarak serangan
-    public float attackEnergyCost = 10f; // Biaya energi sekali pukul
+    public float attackEnergyCost = 5f; // Biaya energi sekali pukul
     private bool isAttacking = false;
 
     [Header("UI Reference")]
     public TextMeshProUGUI healthUI;
-    public TextMeshProUGUI goldUI;
+    public TextMeshProUGUI expUI;
     public TextMeshProUGUI energyUI;
+    public TextMeshProUGUI levelUI;
 
     private Animator anim;
 
@@ -39,6 +43,44 @@ public class PlayerStats : MonoBehaviour
     void Update()
     {
         HandleEnergyRegen();
+    }
+
+    public void AddExperience(int amount)
+    {
+        currentExp += amount;
+        Debug.Log("Exp +" + amount + "Total :" + currentExp);
+
+        while (currentExp >= expToNextLevel)
+        {
+            LevelUp();
+        }
+
+        RegenHPAfterEat();
+
+        UpdateUI();
+    }
+
+    void LevelUp()
+    {
+        currentExp -= expToNextLevel;
+        level++;
+        expToNextLevel = level * 60;
+
+        maxHealth += 20;
+        health = maxHealth;
+        damage += 10;
+        regenRate +=2;
+
+        Debug.Log("Level Up : Level sekarang " + level);
+    }
+
+    void RegenHPAfterEat()
+    {
+        int regenAmount = Mathf.RoundToInt(maxHealth * 0.25f);
+        health += regenAmount;
+        if (health > maxHealth) health = maxHealth;
+
+        Debug.Log("HP +" + regenAmount);
     }
 
     private void HandleEnergyRegen()
@@ -56,10 +98,8 @@ public class PlayerStats : MonoBehaviour
         }
     }
 
-    // --- LOGIKA ATTACK MANUAL ---
     public void ManualAttack()
     {
-        // Hanya bisa nyerang jika tidak sedang animasi attack & tidak capek
         if (!isAttacking && !isExhausted && energy >= attackEnergyCost)
         {
             StartCoroutine(PlayerAttackRoutine());
@@ -68,10 +108,8 @@ public class PlayerStats : MonoBehaviour
 
     IEnumerator PlayerAttackRoutine()
     {
-        // 1. Izinkan animasi dimainkan ulang dari awal meskipun animasi sebelumnya belum beres
         if (anim != null) 
         {
-            // Parameter: "NamaState", Layer (-1 = default), StartTime (0f = mulai dari awal)
             anim.Play("eat", -1, 0f); 
         }
 
@@ -79,7 +117,6 @@ public class PlayerStats : MonoBehaviour
         energy -= attackEnergyCost;
         UpdateUI();
 
-        // 2. Momen serangan (Disesuaikan agar terasa cepat, misal 0.3 detik)
         yield return new WaitForSeconds(0.3f);
 
         Collider[] hitEnemies = Physics.OverlapSphere(transform.position, attackRange);
@@ -92,8 +129,6 @@ public class PlayerStats : MonoBehaviour
             }
         }
 
-        // 3. KUNCI UTAMA SPAM: 
-        // Jangan tunggu sampai 1.2 detik. Begitu damage keluar, langsung izinkan attack lagi.
         yield return new WaitForSeconds(0.1f); 
         isAttacking = false;
     }
@@ -114,7 +149,8 @@ public class PlayerStats : MonoBehaviour
     public void UpdateUI()
     {
         if (healthUI) healthUI.text = "HP: " + health;
-        if (goldUI) goldUI.text = "Gold: " + gold;
+        if (levelUI) levelUI.text = "LVL: " + level;
+        if (expUI) expUI.text = "Exp: " + currentExp + " / " + expToNextLevel;
         if (energyUI) energyUI.text = "Energy: " + Mathf.RoundToInt(energy);
 
         if (health <= 0) Debug.Log("Player Mati / Game Over!");
@@ -123,7 +159,7 @@ public class PlayerStats : MonoBehaviour
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Heal")) { health += 10; Destroy(other.gameObject); }
-        else if (other.CompareTag("Gold")) { gold += 5; Destroy(other.gameObject); }
+        // else if (other.CompareTag("Gold")) {  += 5; Destroy(other.gameObject); }
         else if (other.CompareTag("Damage")) { health -= 10; Destroy(other.gameObject); }
         UpdateUI();
     }
