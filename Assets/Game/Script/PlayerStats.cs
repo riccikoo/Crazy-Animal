@@ -30,6 +30,8 @@ public class PlayerStats : MonoBehaviour
     public TextMeshProUGUI expUI;
     public TextMeshProUGUI energyUI;
     public TextMeshProUGUI levelUI;
+    public UnityEngine.UI.Slider hpSlider;
+    public UnityEngine.UI.Slider energySlider;
 
     private Animator anim;
 
@@ -108,8 +110,10 @@ public class PlayerStats : MonoBehaviour
 
     IEnumerator PlayerAttackRoutine()
     {
+        // 1. Izinkan animasi dimainkan ulang dari awal meskipun animasi sebelumnya belum beres
         if (anim != null) 
         {
+            // Parameter: "NamaState", Layer (-1 = default), StartTime (0f = mulai dari awal)
             anim.Play("eat", -1, 0f); 
         }
 
@@ -129,6 +133,8 @@ public class PlayerStats : MonoBehaviour
             }
         }
 
+        // 3. KUNCI UTAMA SPAM: 
+        // Jangan tunggu sampai 1.2 detik. Begitu damage keluar, langsung izinkan attack lagi.
         yield return new WaitForSeconds(0.1f); 
         isAttacking = false;
     }
@@ -152,6 +158,9 @@ public class PlayerStats : MonoBehaviour
         if (levelUI) levelUI.text = "LVL: " + level;
         if (expUI) expUI.text = "Exp: " + currentExp + " / " + expToNextLevel;
         if (energyUI) energyUI.text = "Energy: " + Mathf.RoundToInt(energy);
+
+        if (hpSlider) hpSlider.value = health;
+        if (energySlider) energySlider.value = energy;
 
         if (health <= 0) Debug.Log("Player Mati / Game Over!");
     }
