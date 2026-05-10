@@ -197,3 +197,4 @@ MonoBehaviour:
   walkSpeed: 2
   runSpeed: 5
   enemyLevel: 0
+  enemyHUDPrefab: {fileID: 5429148340446724276, guid: 48696c122d46dec4f8f4d6d3a1caa03f, type: 3}

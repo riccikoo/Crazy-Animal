@@ -28,6 +28,10 @@ public class EnemyAI : MonoBehaviour
     [Header("Level")]
     public int enemyLevel = 1;
 
+    [Header("HUD")]
+    public GameObject enemyHUDPrefab;
+    private EnemyHUDController hudController;
+
     private NavMeshAgent agent;
     private Animator anim;
     private Vector3 spawnPoint;
@@ -40,6 +44,14 @@ public class EnemyAI : MonoBehaviour
         spawnPoint = transform.position;
         player = GameObject.FindGameObjectWithTag("Player").transform;
         SetNewPatrolTarget();
+
+        Canvas canvas = FindObjectOfType<Canvas>();
+        if (enemyHUDPrefab != null && canvas != null)
+        {
+            GameObject hud = Instantiate(enemyHUDPrefab, canvas.transform);
+            hudController = hud.GetComponent<EnemyHUDController>();
+            hudController.Init(transform, gameObject.name, enemyHealth);
+        }
     }
 
     void Update()
@@ -54,7 +66,7 @@ public class EnemyAI : MonoBehaviour
                 agent.speed = walkSpeed;
                 anim.SetFloat("Speed", 1f);
 
-                if (enemyLevel > 0 && distance < detectionRadius) 
+                if (enemyLevel > 0 && distance < detectionRadius)
                 {
                     currentState = EnemyState.Chase;
                 }
@@ -63,7 +75,7 @@ public class EnemyAI : MonoBehaviour
                 break;
 
             case EnemyState.Chase:
-                if (enemyLevel <= 0) 
+                if (enemyLevel <= 0)
                 {
                     currentState = EnemyState.Patrol;
                     break;
@@ -72,10 +84,10 @@ public class EnemyAI : MonoBehaviour
                 agent.speed = runSpeed;
                 agent.SetDestination(player.position);
                 anim.SetFloat("Speed", 2f);
-                
+
                 if (distance > detectionRadius + 2f) currentState = EnemyState.Patrol;
 
-                if (distance <= eatDistance && canAttack && currentState != EnemyState.Eat) 
+                if (distance <= eatDistance && canAttack && currentState != EnemyState.Eat)
                 {
                     StartCoroutine(StartEating());
                 }
@@ -86,14 +98,14 @@ public class EnemyAI : MonoBehaviour
     IEnumerator StartEating()
     {
         if(enemyLevel == 0 ) yield break;
-        canAttack = false; 
+        canAttack = false;
         currentState = EnemyState.Eat;
         agent.isStopped = true;
         agent.velocity = Vector3.zero;
         transform.LookAt(new Vector3(player.position.x, transform.position.y, player.position.z));
         if (anim != null) anim.Play("eat", -1, 0f);
 
-        yield return new WaitForSeconds(1.0f); 
+        yield return new WaitForSeconds(1.0f);
 
         if (Vector3.Distance(transform.position, player.position) <= eatDistance + 0.5f)
         {
@@ -106,14 +118,14 @@ public class EnemyAI : MonoBehaviour
             }
         }
 
-        yield return new WaitForSeconds(1.0f); 
+        yield return new WaitForSeconds(1.0f);
 
         if (enemyHealth > 0)
         {
             agent.isStopped = false;
             currentState = EnemyState.Patrol;
             yield return new WaitForSeconds(attackCooldown);
-            canAttack = true; 
+            canAttack = true;
         }
         else Die();
     }
@@ -121,15 +133,17 @@ public class EnemyAI : MonoBehaviour
     public void TakeDamage(int damage)
     {
         if (isInvincible || enemyHealth <= 0) return;
-        
+
         enemyHealth -= damage;
         Debug.Log("Musuh Kena Hit! Sisa Darah: " + enemyHealth);
 
-        if (enemyHealth <= 0) 
+        if (hudController) hudController.UpdateHP(enemyHealth);
+
+        if (enemyHealth <= 0)
         {
             Die();
         }
-        else 
+        else
         {
             StopCoroutine(StartEating()); // Hentikan makan kalau dipukul
             StartCoroutine(HitCooldown());
@@ -140,8 +154,8 @@ public class EnemyAI : MonoBehaviour
     {
         isInvincible = true;
         agent.isStopped = true;
-        if (anim != null) anim.Play("eat"); 
-        
+        if (anim != null) anim.Play("eat");
+
         yield return new WaitForSeconds(0.2f);
 
         if (enemyHealth > 0)
@@ -157,7 +171,7 @@ public class EnemyAI : MonoBehaviour
     {
         Debug.Log(gameObject.name + " Mati!");
         StopAllCoroutines();
-        
+
         // Berikan EXP
         PlayerStats ps = player.GetComponent<PlayerStats>();
         if (ps != null)
@@ -171,11 +185,11 @@ public class EnemyAI : MonoBehaviour
         {
             mySpawner.RespawnEnemy(spawnPoint);
         }
-        else 
+        else
         {
             Debug.LogError("Bunny mati tapi gak punya spawner! Cek Inspector!");
         }
-        
+
         Destroy(gameObject);
     }
 

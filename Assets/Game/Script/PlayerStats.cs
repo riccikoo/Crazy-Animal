@@ -32,6 +32,10 @@ public class PlayerStats : MonoBehaviour
     public TextMeshProUGUI levelUI;
     public UnityEngine.UI.Slider hpSlider;
     public UnityEngine.UI.Slider energySlider;
+    public UnityEngine.UI.Slider xpSlider;
+    public GameObject floatingTextPrefab;
+    public Canvas canvas;
+    public LevelUpEffect levelUpEffect;
 
     private Animator anim;
 
@@ -60,6 +64,13 @@ public class PlayerStats : MonoBehaviour
         RegenHPAfterEat();
 
         UpdateUI();
+
+        if (floatingTextPrefab != null && canvas != null)
+        {
+            GameObject ft = Instantiate(floatingTextPrefab, canvas.transform);
+            ft.GetComponent<FloatingText>().SetText("+" + amount + " XP");
+            ft.GetComponent<RectTransform>().anchoredPosition = new Vector2(0, -200);
+        }
     }
 
     void LevelUp()
@@ -74,6 +85,8 @@ public class PlayerStats : MonoBehaviour
         regenRate +=2;
 
         Debug.Log("Level Up : Level sekarang " + level);
+
+        if (levelUpEffect) levelUpEffect.ShowLevelUp(level);
     }
 
     void RegenHPAfterEat()
@@ -111,10 +124,10 @@ public class PlayerStats : MonoBehaviour
     IEnumerator PlayerAttackRoutine()
     {
         // 1. Izinkan animasi dimainkan ulang dari awal meskipun animasi sebelumnya belum beres
-        if (anim != null) 
+        if (anim != null)
         {
             // Parameter: "NamaState", Layer (-1 = default), StartTime (0f = mulai dari awal)
-            anim.Play("eat", -1, 0f); 
+            anim.Play("eat", -1, 0f);
         }
 
         isAttacking = true;
@@ -133,9 +146,9 @@ public class PlayerStats : MonoBehaviour
             }
         }
 
-        // 3. KUNCI UTAMA SPAM: 
+        // 3. KUNCI UTAMA SPAM:
         // Jangan tunggu sampai 1.2 detik. Begitu damage keluar, langsung izinkan attack lagi.
-        yield return new WaitForSeconds(0.1f); 
+        yield return new WaitForSeconds(0.1f);
         isAttacking = false;
     }
 
@@ -156,13 +169,15 @@ public class PlayerStats : MonoBehaviour
     {
         if (healthUI) healthUI.text = "HP: " + health;
         if (levelUI) levelUI.text = "LVL: " + level;
-        if (expUI) expUI.text = "Exp: " + currentExp + " / " + expToNextLevel;
+        //if (expUI) expUI.text = "Exp: " + currentExp + " / " + expToNextLevel;
+        if (expUI) expUI.text = currentExp + "/" + expToNextLevel;
         if (energyUI) energyUI.text = "Energy: " + Mathf.RoundToInt(energy);
 
         if (hpSlider) hpSlider.value = health;
         if (energySlider) energySlider.value = energy;
 
         if (health <= 0) Debug.Log("Player Mati / Game Over!");
+        if (xpSlider) { xpSlider.maxValue = expToNextLevel; xpSlider.value = currentExp; }
     }
 
     private void OnTriggerEnter(Collider other)
