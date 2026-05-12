@@ -6,7 +6,7 @@ public class MainMenuManager : MonoBehaviour
     // Fungsi untuk pindah ke scene game (SampleScene)
     public void PlayGame()
     {
-        SceneManager.LoadScene("SampleScene");
+        SceneManager.LoadScene("SampleScene 1");
     }
 
     // Fungsi untuk keluar game

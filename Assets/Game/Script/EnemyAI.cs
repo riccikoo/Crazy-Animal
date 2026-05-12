@@ -45,7 +45,7 @@ public class EnemyAI : MonoBehaviour
         player = GameObject.FindGameObjectWithTag("Player").transform;
         SetNewPatrolTarget();
 
-        Canvas canvas = FindObjectOfType<Canvas>();
+        Canvas canvas = FindFirstObjectByType<Canvas>();
         if (enemyHUDPrefab != null && canvas != null)
         {
             GameObject hud = Instantiate(enemyHUDPrefab, canvas.transform);
