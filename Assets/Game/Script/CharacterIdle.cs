@@ -22,21 +22,18 @@ public class CharacterIdle : MonoBehaviour
     {
         float s = Mathf.Sin(Time.time * speed);
 
-        // gerak kecil, bukan terbang
         transform.localPosition = startLocalPos + new Vector3(
             0,
             Mathf.Abs(s) * bounceAmount,
             0
         );
 
-        // badan goyang kanan-kiri
         transform.localRotation = startLocalRot * Quaternion.Euler(
             0,
             s * swayAngle,
             s * 2f
         );
 
-        // sedikit squash/stretch biar gemas
         transform.localScale = startLocalScale + new Vector3(
             -Mathf.Abs(s) * scaleAmount,
             Mathf.Abs(s) * scaleAmount,

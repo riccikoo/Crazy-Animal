@@ -7,39 +7,37 @@ public class MainMenuManager : MonoBehaviour
     [Header("Camera")]
     public Transform mainMenuPoint;
     public Transform selectCharacterPoint;
-
     public float cameraSpeed = 3f;
 
     private Transform targetPoint;
 
-    [Header("UI")]
-    public GameObject mainMenuUI;
-    public GameObject selectCharacterUI;
+    [Header("Canvas UI")]
+    public GameObject canvasMainMenu;
+    public GameObject canvasSelectCharacter;
 
     [Header("Character")]
     public Transform characterHolder;
-
     public Transform charPointMainMenu;
     public Transform charPointSelect;
-    
+    public float moveSpeed = 5f;
+
+    private Transform currentCharPoint;
+
+    [Header("Model Rotation")]
     public Transform modelPivot;
     public Vector3 mainModelRotation;
     public Vector3 selectModelRotation;
 
     private Quaternion targetModelRotation;
 
-    public float moveSpeed = 5f;
-
-    private Transform currentCharPoint;
-
     void Start()
     {
         targetPoint = mainMenuPoint;
         currentCharPoint = charPointMainMenu;
-
-        selectCharacterUI.SetActive(false);
-
         targetModelRotation = Quaternion.Euler(mainModelRotation);
+
+        canvasMainMenu.SetActive(true);
+        canvasSelectCharacter.SetActive(false);
     }
 
     void Update()
@@ -71,42 +69,36 @@ public class MainMenuManager : MonoBehaviour
 
     public void OpenSelectCharacter()
     {
-        mainMenuUI.SetActive(false);
+        canvasMainMenu.SetActive(false);
 
         targetPoint = selectCharacterPoint;
-
         currentCharPoint = charPointSelect;
-
-        StartCoroutine(ShowCharacterUI());
-
         targetModelRotation = Quaternion.Euler(selectModelRotation);
+
+        StartCoroutine(ShowSelectCharacterCanvas());
     }
 
-    IEnumerator ShowCharacterUI()
+    IEnumerator ShowSelectCharacterCanvas()
     {
         yield return new WaitForSeconds(0.5f);
-
-        selectCharacterUI.SetActive(true);
+        canvasSelectCharacter.SetActive(true);
     }
 
     public void BackToMainMenu()
     {
-        selectCharacterUI.SetActive(false);
+        canvasSelectCharacter.SetActive(false);
 
         targetPoint = mainMenuPoint;
-
         currentCharPoint = charPointMainMenu;
-
-        StartCoroutine(ShowMainMenuUI());
-
         targetModelRotation = Quaternion.Euler(mainModelRotation);
+
+        StartCoroutine(ShowMainMenuCanvas());
     }
 
-    IEnumerator ShowMainMenuUI()
+    IEnumerator ShowMainMenuCanvas()
     {
         yield return new WaitForSeconds(0.5f);
-
-        mainMenuUI.SetActive(true);
+        canvasMainMenu.SetActive(true);
     }
 
     public void PlayGame()
