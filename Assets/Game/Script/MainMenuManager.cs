@@ -15,6 +15,11 @@ public class MainMenuManager : MonoBehaviour
     public GameObject canvasMainMenu;
     public GameObject canvasSelectCharacter;
 
+    [Header("Canvas Groups")]
+    public CanvasGroup mainMenuGroup;
+    public CanvasGroup selectCharacterGroup;
+    public float fadeSpeed = 6f;
+
     [Header("Character")]
     public Transform characterHolder;
     public Transform charPointMainMenu;
@@ -38,6 +43,9 @@ public class MainMenuManager : MonoBehaviour
 
         canvasMainMenu.SetActive(true);
         canvasSelectCharacter.SetActive(false);
+
+        mainMenuGroup.alpha = 1;
+        selectCharacterGroup.alpha = 0;
     }
 
     void Update()
@@ -69,36 +77,71 @@ public class MainMenuManager : MonoBehaviour
 
     public void OpenSelectCharacter()
     {
-        canvasMainMenu.SetActive(false);
+        StopAllCoroutines();
 
         targetPoint = selectCharacterPoint;
         currentCharPoint = charPointSelect;
         targetModelRotation = Quaternion.Euler(selectModelRotation);
 
-        StartCoroutine(ShowSelectCharacterCanvas());
-    }
-
-    IEnumerator ShowSelectCharacterCanvas()
-    {
-        yield return new WaitForSeconds(0.5f);
-        canvasSelectCharacter.SetActive(true);
+        StartCoroutine(SwitchToSelectCharacter());
     }
 
     public void BackToMainMenu()
     {
-        canvasSelectCharacter.SetActive(false);
+        StopAllCoroutines();
 
         targetPoint = mainMenuPoint;
         currentCharPoint = charPointMainMenu;
         targetModelRotation = Quaternion.Euler(mainModelRotation);
 
-        StartCoroutine(ShowMainMenuCanvas());
+        StartCoroutine(SwitchToMainMenu());
     }
 
-    IEnumerator ShowMainMenuCanvas()
+    IEnumerator SwitchToSelectCharacter()
     {
-        yield return new WaitForSeconds(0.5f);
+        yield return FadeCanvas(mainMenuGroup, 0);
+
+        canvasMainMenu.SetActive(false);
+
+        canvasSelectCharacter.SetActive(true);
+        selectCharacterGroup.alpha = 0;
+
+        yield return FadeCanvas(selectCharacterGroup, 1);
+    }
+
+    IEnumerator SwitchToMainMenu()
+    {
+        yield return FadeCanvas(selectCharacterGroup, 0);
+
+        canvasSelectCharacter.SetActive(false);
+
         canvasMainMenu.SetActive(true);
+        mainMenuGroup.alpha = 0;
+
+        yield return FadeCanvas(mainMenuGroup, 1);
+    }
+
+    IEnumerator FadeCanvas(CanvasGroup group, float targetAlpha)
+    {
+        group.interactable = false;
+        group.blocksRaycasts = false;
+
+        while (Mathf.Abs(group.alpha - targetAlpha) > 0.01f)
+        {
+            group.alpha = Mathf.Lerp(
+                group.alpha,
+                targetAlpha,
+                Time.deltaTime * fadeSpeed
+            );
+
+            yield return null;
+        }
+
+        group.alpha = targetAlpha;
+
+        bool isVisible = targetAlpha > 0.9f;
+        group.interactable = isVisible;
+        group.blocksRaycasts = isVisible;
     }
 
     public void PlayGame()
