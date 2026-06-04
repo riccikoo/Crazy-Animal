@@ -20,7 +20,7 @@ public class LevelUpEffect : MonoBehaviour
     }
 
     IEnumerator Animate(int newLevel)
-    {
+
         levelUpText.text = "LEVEL UP!\nLevel " + newLevel;
         levelUpText.enabled = true;
 
