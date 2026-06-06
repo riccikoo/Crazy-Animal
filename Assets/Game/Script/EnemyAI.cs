@@ -32,6 +32,10 @@ public class EnemyAI : MonoBehaviour
     public GameObject enemyHUDPrefab;
     private EnemyHUDController hudController;
 
+    [Header("Audio Settings Custom")]
+    public AudioClip dieSFX;           // Slot file suara poof/lenyap pas kelinci mati
+    private AudioSource sfxSource;
+
     private NavMeshAgent agent;
     private Animator anim;
     private Vector3 spawnPoint;
@@ -51,6 +55,11 @@ public class EnemyAI : MonoBehaviour
             GameObject hud = Instantiate(enemyHUDPrefab, canvas.transform);
             hudController = hud.GetComponent<EnemyHUDController>();
             hudController.Init(transform, gameObject.name, enemyHealth);
+        }
+        GameObject managerObj = GameObject.Find("SFX Manager");
+        if (managerObj != null)
+        {
+            sfxSource = managerObj.GetComponent<AudioSource>();
         }
     }
 
@@ -188,6 +197,11 @@ public class EnemyAI : MonoBehaviour
         else
         {
             Debug.LogError("Bunny mati tapi gak punya spawner! Cek Inspector!");
+        }
+
+        if (sfxSource != null && dieSFX != null && !sfxSource.mute)
+        {
+            sfxSource.PlayOneShot(dieSFX);
         }
 
         Destroy(gameObject);
