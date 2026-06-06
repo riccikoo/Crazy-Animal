@@ -5,7 +5,7 @@ public class AudioToggleSettings : MonoBehaviour
 {
     [Header("Audio Components")]
     public AudioSource musicSource;
-    public AudioSource sfxSource;
+    public AudioSource sfxSource;       // Ini Speaker SFX kamu
 
     [Header("Toggle Buttons (Paw)")]
     public Button musicButton;
@@ -15,22 +15,48 @@ public class AudioToggleSettings : MonoBehaviour
     public Sprite spriteOn;
     public Sprite spriteOff;
 
+    [Header("UI Click Asset")]
+    public AudioClip uiClickSFX;        // 🔥 Slot buat file audio klik kamu
+
     private bool isMusicOn = true;
     private bool isSfxOn = true;
 
     void Start()
     {
-        // Daftarkan fungsi klik tombol
+        // Daftarkan fungsi klik tombol bawaan
         musicButton.onClick.AddListener(ToggleMusic);
         sfxButton.onClick.AddListener(ToggleSFX);
 
-        // Pastikan tombol 100% selalu AKTIF bisa diklik
         musicButton.interactable = true;
         sfxButton.interactable = true;
 
-        // Setel gambar awal pas game baru dibuka (Mulai dari kondisi ON)
+        // 🔥 JALUR NINJA: Otomatis pasang suara klik ke SEMUA tombol yang ada di menu ini!
+        Button[] allButtons = GetComponentsInChildren<Button>(true);
+        foreach (Button btn in allButtons)
+        {
+            btn.onClick.AddListener(PlayClickSound);
+        }
+    }
+
+    void OnEnable()
+    {
+        isMusicOn = true;
+        isSfxOn = true;
+
+        if (musicSource != null) musicSource.mute = false;
+        if (sfxSource != null) sfxSource.mute = false;
+
         UpdateButtonVisual(musicButton, isMusicOn);
         UpdateButtonVisual(sfxButton, isSfxOn);
+    }
+
+    // 🔥 Fungsi buat bunyin suara klik
+    void PlayClickSound()
+    {
+        if (sfxSource != null && uiClickSFX != null)
+        {
+            sfxSource.PlayOneShot(uiClickSFX);
+        }
     }
 
     void ToggleMusic()
@@ -49,7 +75,6 @@ public class AudioToggleSettings : MonoBehaviour
 
     void UpdateButtonVisual(Button targetButton, bool isOn)
     {
-        // Ganti gambar secara manual lewat komponen Image tanpa mematikan interactable
         Image buttonImage = targetButton.GetComponent<Image>();
         if (buttonImage != null)
         {
