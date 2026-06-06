@@ -36,6 +36,10 @@ public class PlayerStats : MonoBehaviour
     public GameObject floatingTextPrefab;
     public Canvas canvas;
     public LevelUpEffect levelUpEffect;
+    [Header("Audio Settings Custom")]
+    public AudioClip hurtSFX;
+    public AudioClip xpSFX;
+    private AudioSource sfxSource;
 
     private Animator anim;
 
@@ -44,6 +48,11 @@ public class PlayerStats : MonoBehaviour
         anim = GetComponent<Animator>();
         energy = maxEnergy;
         UpdateUI();
+        GameObject managerObj = GameObject.Find("SFX Manager");
+        if (managerObj != null)
+        {
+            sfxSource = managerObj.GetComponent<AudioSource>();
+        }
     }
 
     void Update()
@@ -54,6 +63,10 @@ public class PlayerStats : MonoBehaviour
     public void AddExperience(int amount)
     {
         currentExp += amount;
+        if (sfxSource != null && xpSFX != null && !sfxSource.mute)
+            {
+                sfxSource.PlayOneShot(xpSFX);
+            }
         Debug.Log("Exp +" + amount + "Total :" + currentExp);
 
         while (currentExp >= expToNextLevel)
@@ -184,7 +197,18 @@ public class PlayerStats : MonoBehaviour
     {
         if (other.CompareTag("Heal")) { health += 10; Destroy(other.gameObject); }
         // else if (other.CompareTag("Gold")) {  += 5; Destroy(other.gameObject); }
-        else if (other.CompareTag("Damage")) { health -= 10; Destroy(other.gameObject); }
+        else if (other.CompareTag("Damage"))
+        {
+            health -= 10;
+
+            // 🔥 Suara player mengaduh kesakitan!
+            if (sfxSource != null && hurtSFX != null && !sfxSource.mute)
+            {
+                sfxSource.PlayOneShot(hurtSFX);
+            }
+
+            Destroy(other.gameObject);
+        }
         UpdateUI();
     }
 
