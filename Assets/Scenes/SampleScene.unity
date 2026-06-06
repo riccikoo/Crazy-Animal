@@ -5145,7 +5145,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 425, y: 7}
+  m_AnchoredPosition: {x: 435, y: 7}
   m_SizeDelta: {x: 120, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1246342257
@@ -5794,6 +5794,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::LevelUpEffect
   levelUpText: {fileID: 0}
   displayDuration: 2
+  levelUpSFX: {fileID: 8300000, guid: 715923553f6c44642bdd7b1bb502e77e, type: 3}
 --- !u!114 &1472037200
 MonoBehaviour:
   m_ObjectHideFlags: 0
