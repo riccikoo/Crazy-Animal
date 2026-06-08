@@ -9,10 +9,10 @@ public class SettingManager : MonoBehaviour
     public Slider sfxSlider;
     public Slider musicSlider;
 
-    void Start()
-    {
-        volumeSlider.value = AudioListener.volume;
-    }
+    // void Start()
+    // {
+    //     volumeSlider.value = AudioListener.volume;
+    // }
 
     public void OpenSetting()
     {
