@@ -14,7 +14,9 @@ public class PlayerController : MonoBehaviour
     [Header("Jump Settings")]
     public float jumpHeight = 2f;
     public float gravity = -20f; // Saya buat lebih berat agar tidak melayang (floaty)
-    public AudioClip attackSFX;        // Tempat naruh file audio serang di Unity
+    public AudioClip attackSFX;
+    public AudioClip jumpSFX;          // Slot file suara pas melompat (Space)
+    public AudioClip footstepSFX;      // Slot file suara langkah kaki (Walk/Run)
     private AudioSource sfxSource;     // Tempat pinjem speaker SFX Manager
 
     private CharacterController controller;
@@ -23,6 +25,8 @@ public class PlayerController : MonoBehaviour
 
     private Vector3 playerVelocity;
     private bool isGrounded;
+    private float stepTimer = 0f;
+    private float stepInterval = 0.5f;
 
     void Start()
     {
@@ -76,6 +80,10 @@ public class PlayerController : MonoBehaviour
             // Formula: v = sqrt(h * -2 * g)
             playerVelocity.y = Mathf.Sqrt(jumpHeight * -2f * gravity);
             StartCoroutine(JumpJuice(0.8f, 1.2f, 0.1f));
+            if (sfxSource != null && jumpSFX != null && !sfxSource.mute)
+            {
+                sfxSource.PlayOneShot(jumpSFX);
+            }
         }
 
         // 8. Terapkan Gravitasi (Selalu jalan setiap frame)
@@ -94,6 +102,40 @@ public class PlayerController : MonoBehaviour
             }
         }
 
+        // Karakter harus di tanah, bergerak maju/mundur, dan speaker ada
+        if (isGrounded && Mathf.Abs(moveInput) > 0.1f && sfxSource != null && footstepSFX != null && !sfxSource.mute)
+        {
+            // Jalankan timer gess
+            stepTimer += Time.deltaTime;
+
+            // Kalau lagi Lari (Shift), jeda suara dipercepat biar kedengaran buru-buru (0.28 detik)
+            // Kalau Jalan biasa, jedanya santai (0.45 detik)
+            float currentInterval = isSprinting ? 0.28f : 0.45f;
+
+            if (stepTimer >= currentInterval)
+            {
+                // Mainkan suara langkah! Volume lari (0.6f) dibuat agak lebih keras dari jalan (0.35f)
+                float currentVolume = isSprinting ? 0.6f : 0.35f;
+                sfxSource.PlayOneShot(footstepSFX, currentVolume);
+
+                stepTimer = 0f; // Reset timer gess
+            }
+        }
+        else
+        {
+            stepTimer = 0f; // Reset timer kalau player berhenti diam
+        }
+
+    }
+
+    public void PlayFootstepSound()
+    {
+        // Pastikan player lagi di tanah, speaker ada, dan audio klipnya gak kosong
+        if (isGrounded && sfxSource != null && footstepSFX != null && !sfxSource.mute)
+        {
+            // Kita set volumenya agak kecil (0.4f) biar suara langkahnya gak berisik banget gess
+            sfxSource.PlayOneShot(footstepSFX, 0.4f);
+        }
     }
 
     IEnumerator JumpJuice(float stretchX, float stretchY, float duration)

@@ -180,17 +180,17 @@ public class PlayerStats : MonoBehaviour
 
     public void UpdateUI()
     {
-        if (healthUI) healthUI.text = "HP: " + health;
+        if (healthUI) healthUI.text = health + "/" + maxHealth;
         if (levelUI) levelUI.text = "LVL: " + level;
         //if (expUI) expUI.text = "Exp: " + currentExp + " / " + expToNextLevel;
         if (expUI) expUI.text = currentExp + "/" + expToNextLevel;
-        if (energyUI) energyUI.text = "Energy: " + Mathf.RoundToInt(energy);
+        if (energyUI) energyUI.text = Mathf.RoundToInt(energy) + "/" + Mathf.RoundToInt(maxEnergy);
 
-        if (hpSlider) hpSlider.value = health;
-        if (energySlider) energySlider.value = energy;
 
         if (health <= 0) Debug.Log("Player Mati / Game Over!");
         if (xpSlider) { xpSlider.maxValue = expToNextLevel; xpSlider.value = currentExp; }
+        if (hpSlider) { hpSlider.maxValue = maxHealth; hpSlider.value = health; }
+        if (energySlider) { energySlider.maxValue = maxEnergy; energySlider.value = energy; }
     }
 
     private void OnTriggerEnter(Collider other)
