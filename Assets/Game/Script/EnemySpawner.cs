@@ -12,15 +12,6 @@ public class EnemySpawner : MonoBehaviour
 
     void Start()
     {
-        if (enemyPrefab == null)
-        {
-            Debug.LogError("[EnemySpawner] enemyPrefab is not assigned in Inspector!");
-            return;
-        }
-        
-        Debug.Log("[EnemySpawner] Starting spawn sequence, maxEnemies: " + maxEnemies);
-        Debug.Log("[EnemySpawner] Spawner position: " + transform.position);
-        
         // Panggil fungsi untuk spawn awal sebanyak maxEnemies
         for (int i = 0; i < maxEnemies; i++)
         {
@@ -35,48 +26,17 @@ public class EnemySpawner : MonoBehaviour
         Vector3 randomPos = centerPosition + (Random.insideUnitSphere * spawnRadius);
         NavMeshHit hit;
         
-        Debug.Log("[EnemySpawner] Attempting to spawn at randomPos: " + randomPos);
-        
         if (NavMesh.SamplePosition(randomPos, out hit, spawnRadius, NavMesh.AllAreas))
         {
-            Debug.Log("[EnemySpawner] NavMesh sample SUCCESS at: " + hit.position);
             GameObject newEnemy = Instantiate(enemyPrefab, hit.position, Quaternion.identity);
-            
-            if (newEnemy == null)
-            {
-                Debug.LogError("[EnemySpawner] Failed to instantiate enemyPrefab!");
-                return;
-            }
-            
-            Debug.Log("[EnemySpawner] Enemy spawned: " + newEnemy.name);
             
             // Link musuh ke spawner ini
             EnemyAI ai = newEnemy.GetComponent<EnemyAI>();
-            if (ai != null) 
-            {
-                ai.mySpawner = this;
-                Debug.Log("[EnemySpawner] EnemyAI component linked to spawner");
-            }
-            else
-            {
-                Debug.LogError("[EnemySpawner] EnemyAI component not found on spawned enemy!");
-            }
+            if (ai != null) ai.mySpawner = this;
 
             // Tempelkan ke NavMesh
             NavMeshAgent agent = newEnemy.GetComponent<NavMeshAgent>();
-            if (agent != null) 
-            {
-                agent.Warp(hit.position);
-                Debug.Log("[EnemySpawner] NavMeshAgent warped to: " + hit.position);
-            }
-            else
-            {
-                Debug.LogError("[EnemySpawner] NavMeshAgent component not found!");
-            }
-        }
-        else
-        {
-            Debug.LogError("[EnemySpawner] NavMesh.SamplePosition FAILED at: " + randomPos);
+            if (agent != null) agent.Warp(hit.position);
         }
     }
 
