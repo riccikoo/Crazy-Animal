@@ -46,7 +46,18 @@ public class EnemyAI : MonoBehaviour
         agent = GetComponent<NavMeshAgent>();
         anim = GetComponent<Animator>();
         spawnPoint = transform.position;
-        player = GameObject.FindGameObjectWithTag("Player").transform;
+        
+        GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+        if (playerObj != null)
+        {
+            player = playerObj.transform;
+        }
+        else
+        {
+            Debug.LogWarning("Player GameObject with tag 'Player' not found!");
+            return;
+        }
+        
         SetNewPatrolTarget();
 
         Canvas canvas = FindFirstObjectByType<Canvas>();
@@ -65,7 +76,7 @@ public class EnemyAI : MonoBehaviour
 
     void Update()
     {
-        if (currentState == EnemyState.Eat || isInvincible) return;
+        if (player == null || currentState == EnemyState.Eat || isInvincible) return;
 
         float distance = Vector3.Distance(transform.position, player.position);
 
@@ -182,11 +193,14 @@ public class EnemyAI : MonoBehaviour
         StopAllCoroutines();
 
         // Berikan EXP
-        PlayerStats ps = player.GetComponent<PlayerStats>();
-        if (ps != null)
+        if (player != null)
         {
-            int expReward = (enemyLevel <= 0) ? 20 : enemyLevel * 20;
-            ps.AddExperience(expReward);
+            PlayerStats ps = player.GetComponent<PlayerStats>();
+            if (ps != null)
+            {
+                int expReward = (enemyLevel <= 0) ? 20 : enemyLevel * 20;
+                ps.AddExperience(expReward);
+            }
         }
 
         // Panggil Respawn lewat spawner spesifiknya
