@@ -26,6 +26,10 @@ public class MainMenuManager : MonoBehaviour
     public Transform charPointSelect;
     public float moveSpeed = 5f;
 
+    [Header("Game Character Prefabs")]
+    public GameObject[] characterPrefabs;  // Assign sama dengan CharacterSelectManager
+    public Transform playerSpawnPoint;     // Spawn point untuk player di SampleScene
+
     private Transform currentCharPoint;
 
     [Header("Model Rotation")]
@@ -146,7 +150,45 @@ public class MainMenuManager : MonoBehaviour
 
     public void PlayGame()
     {
+        // Setup GameManager untuk spawn player dengan character yang dipilih
+        SetupGameManager();
+        
         SceneManager.LoadScene("SampleScene");
+    }
+
+    void SetupGameManager()
+    {
+        // Cek apakah GameManager sudah ada
+        GameManager existingGM = FindFirstObjectByType<GameManager>();
+        if (existingGM != null)
+        {
+            Debug.Log("[MainMenuManager] GameManager sudah ada, skip setup");
+            return;
+        }
+
+        // Create GameManager GameObject
+        GameObject gmObject = new GameObject("_GameManager");
+        GameManager gm = gmObject.AddComponent<GameManager>();
+
+        // Assign character prefabs
+        if (characterPrefabs != null && characterPrefabs.Length > 0)
+        {
+            gm.characterPrefabs = characterPrefabs;
+            Debug.Log($"[MainMenuManager] GameManager setup dengan {characterPrefabs.Length} character prefabs");
+        }
+        else
+        {
+            Debug.LogWarning("[MainMenuManager] characterPrefabs tidak di-assign di MainMenuManager!");
+        }
+
+        // Assign spawn point jika ada
+        if (playerSpawnPoint != null)
+        {
+            gm.playerSpawnPoint = playerSpawnPoint;
+        }
+
+        // Keep GameManager alive across scene loads
+        DontDestroyOnLoad(gmObject);
     }
 
     public void Settings()
@@ -162,5 +204,11 @@ public class MainMenuManager : MonoBehaviour
     public void QuitGame()
     {
         Application.Quit();
+    }
+
+    public void SetCharacterPrefabs(GameObject[] prefabs)
+    {
+        characterPrefabs = prefabs;
+        Debug.Log($"[MainMenuManager] Character prefabs set: {prefabs.Length} prefabs");
     }
 }

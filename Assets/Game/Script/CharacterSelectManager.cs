@@ -16,6 +16,12 @@ public class CharacterSelectManager : MonoBehaviour
 
     public void SelectCharacter(int index)
     {
+        if (index < 0 || index >= characterPrefabs.Length)
+        {
+            Debug.LogError($"[CharacterSelectManager] Invalid index: {index}");
+            return;
+        }
+
         selectedIndex = index;
 
         if (currentCharacter != null)
@@ -37,9 +43,17 @@ public class CharacterSelectManager : MonoBehaviour
             buttons[i].SetSelected(i == index);
         }
 
+        // Save selected character untuk di-load di game
         PlayerPrefs.SetInt("SelectedCharacter", selectedIndex);
+        PlayerPrefs.Save(); // Pastikan di-save ke disk
+        
+        Debug.Log($"[CharacterSelectManager] Character {index} selected and saved");
 
         currentCharacter.AddComponent<CharacterIdle>();
+    }
 
+    public GameObject[] GetCharacterPrefabs()
+    {
+        return characterPrefabs;
     }
 }

@@ -54,7 +54,7 @@ public class EnemyAI : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning("Player GameObject with tag 'Player' not found!");
+            Debug.Log("[EnemyAI] Player tidak ditemukan di scene - akan di-cari lagi nanti");
             return;
         }
         
@@ -76,7 +76,22 @@ public class EnemyAI : MonoBehaviour
 
     void Update()
     {
-        if (player == null || currentState == EnemyState.Eat || isInvincible) return;
+        // Retry find player jika belum ditemukan
+        if (player == null)
+        {
+            GameObject playerObj = GameObject.FindGameObjectWithTag("Player");
+            if (playerObj != null)
+            {
+                player = playerObj.transform;
+                Debug.Log("[EnemyAI] Player found on retry!");
+            }
+            else
+            {
+                return;
+            }
+        }
+
+        if (currentState == EnemyState.Eat || isInvincible) return;
 
         float distance = Vector3.Distance(transform.position, player.position);
 

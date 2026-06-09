@@ -26,7 +26,7 @@ RenderSettings:
   m_AmbientIntensity: 1
   m_AmbientMode: 0
   m_SubtractiveShadowColor: {r: 0.42, g: 0.478, b: 0.627, a: 1}
-  m_SkyboxMaterial: {fileID: 2100000, guid: d91aac2ab6cacf042bdd81a4b63cc09a, type: 2}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 4d0e0ffc7a6c1bf44b435e0b23260f8c, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -119,6 +119,54 @@ NavMeshSettings:
     debug:
       m_Flags: 0
   m_NavMeshData: {fileID: 0}
+--- !u!1 &5210328
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5210329}
+  - component: {fileID: 5210330}
+  m_Layer: 0
+  m_Name: HogSpawner
+  m_TagString: Enemy
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5210329
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5210328}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 475.1, y: 0, z: 302.5}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1373964476}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &5210330
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5210328}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f0ccef9767c963848b69d6b2996b45b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
+  enemyPrefab: {fileID: 2914283953192552198, guid: 156acb74ac4022a4ca1f1fd0939d4a5d, type: 3}
+  maxEnemies: 3
+  spawnRadius: 3
+  respawnTime: 10
 --- !u!1 &18377034
 GameObject:
   m_ObjectHideFlags: 0
@@ -532,7 +580,7 @@ MonoBehaviour:
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.16666667
   m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: 7f5f46e7c4a0bbd4783a2ad2bfed4092, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: 1b265e4b0b4c800408b6e9a9c85791d7, type: 2}
   m_BuildHeightMesh: 0
 --- !u!64 &69730121
 MeshCollider:
@@ -1661,7 +1709,7 @@ Transform:
   m_GameObject: {fileID: 197676100}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: 0.26084536, z: -0, w: 0.9653806}
-  m_LocalPosition: {x: 437.7, y: -1.49, z: 334.9}
+  m_LocalPosition: {x: 437.7, y: -2.3, z: 334.9}
   m_LocalScale: {x: 24.433289, y: 3.7484717, z: 3.7484717}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -2000,6 +2048,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SkyboxCycleManager
       objectReference: {fileID: 0}
+    - target: {fileID: 7889658900192904083, guid: d641129db7fbaa047b4268d4789e10a1, type: 3}
+      propertyPath: CycleDuration
+      value: 60
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -2226,6 +2278,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 7e984d0c148085b4393943b9b2e4ee5d, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 7e984d0c148085b4393943b9b2e4ee5d, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 7e984d0c148085b4393943b9b2e4ee5d, type: 3}
       propertyPath: m_TagString
@@ -2463,6 +2519,50 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -20, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &441178946
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 441178948}
+  - component: {fileID: 441178947}
+  m_Layer: 0
+  m_Name: SceneInit
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &441178947
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 441178946}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0600bb66f4fe9204ea579a98e1788b11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SceneInitializer
+--- !u!4 &441178948
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 441178946}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 447.28357, y: -1.395, z: 350.66373}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &464079050
 GameObject:
   m_ObjectHideFlags: 0
@@ -4652,7 +4752,7 @@ MonoBehaviour:
   m_OverrideVoxelSize: 0
   m_VoxelSize: 0.16666667
   m_MinRegionArea: 2
-  m_NavMeshData: {fileID: 23800000, guid: 1b265e4b0b4c800408b6e9a9c85791d7, type: 2}
+  m_NavMeshData: {fileID: 23800000, guid: 7f5f46e7c4a0bbd4783a2ad2bfed4092, type: 2}
   m_BuildHeightMesh: 0
 --- !u!64 &915371088
 MeshCollider:
@@ -5117,7 +5217,7 @@ GameObject:
   - component: {fileID: 1099644692}
   m_Layer: 0
   m_Name: BunnySpawner
-  m_TagString: Untagged
+  m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -5131,7 +5231,7 @@ Transform:
   m_GameObject: {fileID: 1099644690}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 413.7, y: 0, z: 357.1}
+  m_LocalPosition: {x: 403.9, y: 0, z: 357.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -5151,7 +5251,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::EnemySpawner
   enemyPrefab: {fileID: 4327387931029897425, guid: 640f911befa58be4aa9e9ec13561c70a, type: 3}
   maxEnemies: 3
-  spawnRadius: 5
+  spawnRadius: 3
   respawnTime: 10
 --- !u!1 &1158046791
 GameObject:
@@ -6011,6 +6111,7 @@ Transform:
   - {fileID: 919171949}
   - {fileID: 2045850150}
   - {fileID: 1099644691}
+  - {fileID: 5210329}
   - {fileID: 87611013}
   - {fileID: 1280748778}
   - {fileID: 419260485}
@@ -8035,3 +8136,4 @@ SceneRoots:
   - {fileID: 2052045644}
   - {fileID: 174624003}
   - {fileID: 289080210}
+  - {fileID: 441178948}

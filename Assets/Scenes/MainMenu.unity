@@ -5051,6 +5051,16 @@ MonoBehaviour:
   charPointMainMenu: {fileID: 1401946287}
   charPointSelect: {fileID: 1923546230}
   moveSpeed: 5
+  characterPrefabs:
+  - {fileID: 919132149155446097, guid: 7e984d0c148085b4393943b9b2e4ee5d, type: 3}
+  - {fileID: 919132149155446097, guid: 504f90edcf34ade45b0940109505d6a5, type: 3}
+  - {fileID: 919132149155446097, guid: 779a13c50b01aca4eb0afdf302fbfd86, type: 3}
+  - {fileID: 919132149155446097, guid: 079a85d112dd54a40b076c249e26a5b2, type: 3}
+  - {fileID: 919132149155446097, guid: 6020ef3fb1bf3ba40b839cbb8583f3b4, type: 3}
+  - {fileID: 919132149155446097, guid: c232836d1c975c248a150ca79bd4a2bb, type: 3}
+  - {fileID: 919132149155446097, guid: 8c1c2c2de482aab4e877aaea0c9bb4de, type: 3}
+  - {fileID: 919132149155446097, guid: a70b79dfd5337b847aeefa384a0aa66e, type: 3}
+  playerSpawnPoint: {fileID: 0}
   modelPivot: {fileID: 2055430664}
   mainModelRotation: {x: 0, y: 194, z: 0}
   selectModelRotation: {x: 0, y: 155, z: 0}
